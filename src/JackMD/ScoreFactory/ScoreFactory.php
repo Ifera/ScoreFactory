@@ -9,6 +9,7 @@ use pocketmine\network\mcpe\protocol\SetScorePacket;
 use pocketmine\network\mcpe\protocol\types\ScorePacketEntry;
 use pocketmine\Player;
 use pocketmine\Server;
+use function strtolower;
 
 class ScoreFactory{
 
@@ -49,7 +50,7 @@ class ScoreFactory{
 	 * @param string $criteriaName
 	 */
 	public static function setScore(Player $player, string $displayName, int $slotOrder = self::SORT_ASCENDING, string $displaySlot = self::SLOT_SIDEBAR, string $objectiveName = self::OBJECTIVE_NAME, string $criteriaName = self::CRITERIA_NAME): void{
-		if(isset(self::$scoreboards[$player->getName()])){
+		if(isset(self::$scoreboards[strtolower($player->getName())])){
 			self::removeScore($player);
 		}
 
@@ -61,7 +62,7 @@ class ScoreFactory{
 		$pk->sortOrder = $slotOrder;
 		$player->sendDataPacket($pk);
 
-		self::$scoreboards[$player->getName()] = $objectiveName;
+		self::$scoreboards[strtolower($player->getName())] = $objectiveName;
 	}
 
 	/**
@@ -70,13 +71,13 @@ class ScoreFactory{
 	 * @param Player $player
 	 */
 	public static function removeScore(Player $player): void{
-		$objectiveName = self::$scoreboards[$player->getName()] ?? self::OBJECTIVE_NAME;
+		$objectiveName = self::$scoreboards[strtolower($player->getName())] ?? self::OBJECTIVE_NAME;
 
 		$pk = new RemoveObjectivePacket();
 		$pk->objectiveName = $objectiveName;
 		$player->sendDataPacket($pk);
 
-		unset(self::$scoreboards[$player->getName()]);
+		unset(self::$scoreboards[strtolower($player->getName())]);
 	}
 
 	/**
@@ -95,7 +96,7 @@ class ScoreFactory{
 	 * @return bool
 	 */
 	public static function hasScore(Player $player): bool{
-		return isset(self::$scoreboards[$player->getName()]);
+		return isset(self::$scoreboards[strtolower($player->getName())]);
 	}
 
 	/**
@@ -107,7 +108,7 @@ class ScoreFactory{
 	 * @param string $type
 	 */
 	public static function setScoreLine(Player $player, int $line, string $message, string $type = ScorePacketEntry::TYPE_FAKE_PLAYER): void{
-		if(!isset(self::$scoreboards[$player->getName()])){
+		if(!isset(self::$scoreboards[strtolower($player->getName())])){
 			Server::getInstance()->getLogger()->error("Cannot set a score to a player with no scoreboard");
 
 			return;
@@ -121,7 +122,7 @@ class ScoreFactory{
 		}
 
 		$entry = new ScorePacketEntry();
-		$entry->objectiveName = self::$scoreboards[$player->getName()] ?? self::OBJECTIVE_NAME;
+		$entry->objectiveName = self::$scoreboards[strtolower($player->getName())] ?? self::OBJECTIVE_NAME;
 		$entry->type = $type;
 		$entry->customName = $message;
 		$entry->score = $line;
