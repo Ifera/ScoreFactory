@@ -91,7 +91,7 @@ class ScoreFactory{
 	 * @return bool
 	 */
 	public static function hasScore(Player $player): bool{
-		return (isset(self::$scoreboards[$player->getName()])) ? true : false;
+		return isset(self::$scoreboards[$player->getName()]);
 	}
 	
 	/**
