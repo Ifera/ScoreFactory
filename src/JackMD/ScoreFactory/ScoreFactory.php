@@ -105,9 +105,9 @@ class ScoreFactory{
 	 * @param Player $player
 	 * @param int    $line
 	 * @param string $message
-	 * @param string $type
+	 * @param int $type
 	 */
-	public static function setScoreLine(Player $player, int $line, string $message, string $type = ScorePacketEntry::TYPE_FAKE_PLAYER): void{
+	public static function setScoreLine(Player $player, int $line, string $message, int $type = ScorePacketEntry::TYPE_FAKE_PLAYER): void{
 		if(!isset(self::$scoreboards[strtolower($player->getName())])){
 			Server::getInstance()->getLogger()->error("Cannot set a score to a player with no scoreboard");
 
