@@ -8,7 +8,8 @@ use pocketmine\network\mcpe\protocol\SetDisplayObjectivePacket;
 use pocketmine\network\mcpe\protocol\SetScorePacket;
 use pocketmine\network\mcpe\protocol\types\ScorePacketEntry;
 use pocketmine\Player;
-use pocketmine\Server;
+use BadFunctionCallException;
+use OutOfBoundsException;
 use function mb_strtolower;
 
 class ScoreFactory{
@@ -105,20 +106,15 @@ class ScoreFactory{
 	 * @param Player $player
 	 * @param int    $line
 	 * @param string $message
-	 * @param int $type
+	 * @param int    $type
 	 */
 	public static function setScoreLine(Player $player, int $line, string $message, int $type = ScorePacketEntry::TYPE_FAKE_PLAYER): void{
 		if(!isset(self::$scoreboards[mb_strtolower($player->getName())])){
-			Server::getInstance()->getLogger()->error("Cannot set a score to a player with no scoreboard");
-
-			return;
+			throw new BadFunctionCallException("Cannot set a score to a player without a scoreboard");
 		}
 
 		if($line < self::MIN_LINES || $line > self::MAX_LINES){
-			Server::getInstance()->getLogger()->error("Score must be between the value of " . self::MIN_LINES . " to " . self::MAX_LINES . ".");
-			Server::getInstance()->getLogger()->error($line . " is out of range");
-
-			return;
+			throw new OutOfBoundsException("$line is out of range, expected value between " . self::MIN_LINES . " and " . self::MAX_LINES);
 		}
 
 		$entry = new ScorePacketEntry();
