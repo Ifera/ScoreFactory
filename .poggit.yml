@@ -1,6 +1,6 @@
---- # Poggit-CI Manifest. Open the CI at https://poggit.pmmp.io/ci/stephen-mc-pl/ScoreFactory
+--- # Poggit-CI Manifest. Open the CI at https://poggit.pmmp.io/ci/buchwasa/ScoreFactory
 branches:
-- master
+- main
 - pm4
 projects:
   ScoreFactory:
