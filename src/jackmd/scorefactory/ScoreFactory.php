@@ -36,8 +36,8 @@ class ScoreFactory{
 	/** @var string */
 	public const SLOT_BELOW_NAME = "belowname";
 
-	/** @var array */
-	private static $scoreboards = [];
+	/** @var string[] */
+	private static array $scoreboards = [];
 
 	/**
 	 * Adds a Scoreboard to the player if he doesn't have one.
