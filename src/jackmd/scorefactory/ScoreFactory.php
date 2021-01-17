@@ -7,9 +7,9 @@ use pocketmine\network\mcpe\protocol\RemoveObjectivePacket;
 use pocketmine\network\mcpe\protocol\SetDisplayObjectivePacket;
 use pocketmine\network\mcpe\protocol\SetScorePacket;
 use pocketmine\network\mcpe\protocol\types\ScorePacketEntry;
+use pocketmine\player\Player;
 use BadFunctionCallException;
 use OutOfBoundsException;
-use pocketmine\player\Player;
 use function mb_strtolower;
 
 class ScoreFactory{
@@ -36,8 +36,8 @@ class ScoreFactory{
 	/** @var string */
 	public const SLOT_BELOW_NAME = "belowname";
 
-	/** @var array */
-	private static $scoreboards = [];
+	/** @var string[] */
+	private static array $scoreboards = [];
 
 	/**
 	 * Adds a Scoreboard to the player if he doesn't have one.
