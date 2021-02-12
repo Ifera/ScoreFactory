@@ -1,10 +1,8 @@
 name: ScoreFactory
 version: 3.0.0
-api: 3.0.0
+api: [3.0.0, 4.0.0]
 antigen: jackmd\scorefactory
 authors:
   - JackMD
   - TwistedAsylumMC
-php:
-  - 7.2
-  - 8.0
+php: [7.2, 8.0]
