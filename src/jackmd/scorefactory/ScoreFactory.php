@@ -84,7 +84,7 @@ class ScoreFactory{
 	/**
 	 * Returns an array consisting of a list of the players using scoreboard.
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	public static function getScoreboards(): array{
 		return self::$scoreboards;
