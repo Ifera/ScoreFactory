@@ -13,5 +13,10 @@
         "pocketmine/pocketmine-mp": "dev-master"
     },
     "license": "GPL-3.0-only",
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "jackmd\\": "src/"
+        }
+    }
 }
