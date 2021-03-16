@@ -1,0 +1,17 @@
+{
+    "name": "buchwasa/scorefactory",
+    "description": "Simple library for making scoreboards in PocketMine-MP",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Tayyab R.",
+            "homepage": "https://github.com/Ifera",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "pocketmine/pocketmine-mp": "dev-master"
+    },
+    "license": "GPL-3.0-only",
+    "minimum-stability": "dev"
+}
