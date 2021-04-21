@@ -1,5 +1,5 @@
 name: ScoreFactory
-version: 3.0.1
+version: 4.0.0
 api: 3.0.0
 antigen: jackmd\scorefactory
 authors:
