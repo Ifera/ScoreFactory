@@ -10,123 +10,114 @@ use pocketmine\network\mcpe\protocol\types\ScorePacketEntry;
 use pocketmine\Player;
 use BadFunctionCallException;
 use OutOfBoundsException;
-use function mb_strtolower;
+use function array_map;
+use function array_values;
 
 class ScoreFactory{
 
-	/** @var string */
 	private const OBJECTIVE_NAME = "objective";
-	/** @var string */
 	private const CRITERIA_NAME = "dummy";
 
-	/** @var int */
 	private const MIN_LINES = 1;
-	/** @var int */
 	private const MAX_LINES = 15;
 
-	/** @var int */
 	public const SORT_ASCENDING = 0;
-	/** @var int */
 	public const SORT_DESCENDING = 1;
 
-	/** @var string */
 	public const SLOT_LIST = "list";
-	/** @var string */
 	public const SLOT_SIDEBAR = "sidebar";
-	/** @var string */
 	public const SLOT_BELOW_NAME = "belowname";
 
-	/** @var string[] */
-	private static array $scoreboards = [];
+	/** @var ScoreCache[] */
+	private static array $cache = [];
 
 	/**
 	 * Adds a Scoreboard to the player if he doesn't have one.
 	 * Can also be used to update a scoreboard.
-	 *
-	 * @param Player $player
-	 * @param string $displayName
-	 * @param int    $slotOrder
-	 * @param string $displaySlot
-	 * @param string $objectiveName
-	 * @param string $criteriaName
 	 */
 	public static function setScore(Player $player, string $displayName, int $slotOrder = self::SORT_ASCENDING, string $displaySlot = self::SLOT_SIDEBAR, string $objectiveName = self::OBJECTIVE_NAME, string $criteriaName = self::CRITERIA_NAME): void{
-		if(isset(self::$scoreboards[mb_strtolower($player->getName())])){
-			self::removeScore($player);
-		}
-
 		$pk = new SetDisplayObjectivePacket();
 		$pk->displaySlot = $displaySlot;
 		$pk->objectiveName = $objectiveName;
 		$pk->displayName = $displayName;
 		$pk->criteriaName = $criteriaName;
 		$pk->sortOrder = $slotOrder;
-		$player->sendDataPacket($pk);
 
-		self::$scoreboards[mb_strtolower($player->getName())] = $objectiveName;
+		self::$cache[$player->getRawUniqueId()] = ScoreCache::init($player, $objectiveName, $pk);
 	}
 
 	/**
 	 * Removes a scoreboard from the player specified.
-	 *
-	 * @param Player $player
 	 */
 	public static function removeScore(Player $player): void{
-		$objectiveName = self::$scoreboards[mb_strtolower($player->getName())] ?? self::OBJECTIVE_NAME;
+		$objectiveName = isset(self::$cache[$player->getRawUniqueId()]) ? self::$cache[$player->getRawUniqueId()]->getObjective() : self::OBJECTIVE_NAME;
 
 		$pk = new RemoveObjectivePacket();
 		$pk->objectiveName = $objectiveName;
 		$player->sendDataPacket($pk);
 
-		unset(self::$scoreboards[mb_strtolower($player->getName())]);
+		unset(self::$cache[$player->getRawUniqueId()]);
 	}
 
 	/**
-	 * Returns an array consisting of a list of the players using scoreboard.
-	 *
-	 * @return string[]
+	 * @return Player[]
 	 */
-	public static function getScoreboards(): array{
-		return self::$scoreboards;
+	public static function getActivePlayers(): array{
+		return array_values(array_map(function(ScoreCache $cache){
+			return $cache->getPlayer();
+		}, self::$cache));
 	}
 
 	/**
 	 * Returns true or false if a player has a scoreboard or not.
-	 *
-	 * @param Player $player
-	 * @return bool
 	 */
 	public static function hasScore(Player $player): bool{
-		return isset(self::$scoreboards[mb_strtolower($player->getName())]);
+		return isset(self::$cache[$player->getRawUniqueId()]);
 	}
 
 	/**
 	 * Set a message at the line specified to the players scoreboard.
-	 *
-	 * @param Player $player
-	 * @param int    $line
-	 * @param string $message
-	 * @param int    $type
 	 */
 	public static function setScoreLine(Player $player, int $line, string $message, int $type = ScorePacketEntry::TYPE_FAKE_PLAYER): void{
-		if(!isset(self::$scoreboards[mb_strtolower($player->getName())])){
-			throw new BadFunctionCallException("Cannot set a score to a player without a scoreboard");
+		if(!isset(self::$cache[$player->getRawUniqueId()])){
+			throw new BadFunctionCallException("Cannot set a score to a player without a scoreboard. Please call ScoreFactory::setScore() beforehand.");
 		}
 
 		if($line < self::MIN_LINES || $line > self::MAX_LINES){
-			throw new OutOfBoundsException("$line is out of range, expected value between " . self::MIN_LINES . " and " . self::MAX_LINES);
+			throw new OutOfBoundsException("Line: $line is out of range, expected value between " . self::MIN_LINES . " and " . self::MAX_LINES);
 		}
 
+		$cache = self::$cache[$player->getRawUniqueId()];
+
 		$entry = new ScorePacketEntry();
-		$entry->objectiveName = self::$scoreboards[mb_strtolower($player->getName())] ?? self::OBJECTIVE_NAME;
+		$entry->objectiveName = $cache->getObjective();
 		$entry->type = $type;
 		$entry->customName = $message;
 		$entry->score = $line;
 		$entry->scoreboardId = $line;
 
-		$pk = new SetScorePacket();
-		$pk->type = $pk::TYPE_CHANGE;
-		$pk->entries[] = $entry;
-		$player->sendDataPacket($pk);
+		$cache->setEntry($line, $entry);
+	}
+
+	/**
+	 * Send scoreboard to the player by first removing the existing scoreboard, creating a new one
+	 * and then sending its lines.
+	 */
+	public static function send(Player $player, bool $sendObjective = true, bool $sendLines = true, bool $removeObjective = true){
+		if(!isset(self::$cache[$player->getRawUniqueId()])){
+			throw new BadFunctionCallException("Cannot send score to a player without a scoreboard. Please call ScoreFactory::setScore() beforehand.");
+		}
+
+		$cache = self::$cache[$player->getRawUniqueId()];
+
+		if($removeObjective) self::removeScore($player);
+		if($sendObjective) $player->sendDataPacket($cache->getObjectivePacket());
+
+		if($sendLines){
+			$pk = new SetScorePacket();
+			$pk->type = $pk::TYPE_CHANGE;
+			$pk->entries = $cache->getEntries();
+			$player->sendDataPacket($pk);
+		}
 	}
 }
