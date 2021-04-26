@@ -36,10 +36,6 @@ class ScoreFactory{
 	 * Can also be used to update a scoreboard.
 	 */
 	public static function setScore(Player $player, string $displayName, int $slotOrder = self::SORT_ASCENDING, string $displaySlot = self::SLOT_SIDEBAR, string $objectiveName = self::OBJECTIVE_NAME, string $criteriaName = self::CRITERIA_NAME): void{
-		if(isset(self::$cache[$player->getRawUniqueId()])){
-			self::removeScore($player);
-		}
-
 		$pk = new SetDisplayObjectivePacket();
 		$pk->displaySlot = $displaySlot;
 		$pk->objectiveName = $objectiveName;
@@ -104,15 +100,18 @@ class ScoreFactory{
 	}
 
 	/**
-	 * Send scoreboard to the player
+	 * Send scoreboard to the player by first removing the existing scoreboard, creating a new one
+	 * and then sending its lines.
 	 */
-	public static function send(Player $player, bool $sendLines = true){
+	public static function send(Player $player, bool $sendObjective = true, bool $sendLines = true, bool $removeObjective = true){
 		if(!isset(self::$cache[$player->getRawUniqueId()])){
 			throw new BadFunctionCallException("Cannot send score to a player without a scoreboard. Please call ScoreFactory::setScore() beforehand.");
 		}
 
 		$cache = self::$cache[$player->getRawUniqueId()];
-		$player->sendDataPacket($cache->getObjectivePacket());
+
+		if($removeObjective) self::removeScore($player);
+		if($sendObjective) $player->sendDataPacket($cache->getObjectivePacket());
 
 		if($sendLines){
 			$pk = new SetScorePacket();
