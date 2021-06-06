@@ -24,18 +24,6 @@ class ScoreFactory{
 	/** @var int */
 	private const MAX_LINES = 15;
 
-	/** @var int */
-	public const SORT_ASCENDING = 0;
-	/** @var int */
-	public const SORT_DESCENDING = 1;
-
-	/** @var string */
-	public const SLOT_LIST = "list";
-	/** @var string */
-	public const SLOT_SIDEBAR = "sidebar";
-	/** @var string */
-	public const SLOT_BELOW_NAME = "belowname";
-
 	/** @var string[] */
 	private static array $scoreboards = [];
 
@@ -50,7 +38,14 @@ class ScoreFactory{
 	 * @param string $objectiveName
 	 * @param string $criteriaName
 	 */
-	public static function setScore(Player $player, string $displayName, int $slotOrder = self::SORT_ASCENDING, string $displaySlot = self::SLOT_SIDEBAR, string $objectiveName = self::OBJECTIVE_NAME, string $criteriaName = self::CRITERIA_NAME): void{
+	public static function setScore(
+		Player $player,
+		string $displayName,
+		int $slotOrder = SetDisplayObjectivePacket::SORT_ORDER_ASCENDING,
+		string $displaySlot = SetDisplayObjectivePacket::DISPLAY_SLOT_SIDEBAR,
+		string $objectiveName = self::OBJECTIVE_NAME,
+		string $criteriaName = self::CRITERIA_NAME
+	): void{
 		if(isset(self::$scoreboards[mb_strtolower($player->getName())])){
 			self::removeScore($player);
 		}
