@@ -10,7 +10,11 @@
         }
     ],
     "require": {
-        "pocketmine/pocketmine-mp": "dev-master"
+        "php": "^8.0",
+        "pocketmine/pocketmine-mp": "4.*"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^0.12.99"
     },
     "license": "GPL-3.0-only",
     "minimum-stability": "dev",
