@@ -46,6 +46,9 @@ class ScoreFactory{
 		string $objectiveName = self::OBJECTIVE_NAME,
 		string $criteriaName = self::CRITERIA_NAME
 	): void{
+        if (!$player->isConnected()){
+            return;
+        }
 		if(isset(self::$scoreboards[mb_strtolower($player->getName())])){
 			self::removeScore($player);
 		}
@@ -67,6 +70,9 @@ class ScoreFactory{
 	 * @param Player $player
 	 */
 	public static function removeScore(Player $player): void{
+        if (!$player->isConnected()){
+            return;
+        }
 		$objectiveName = self::$scoreboards[mb_strtolower($player->getName())] ?? self::OBJECTIVE_NAME;
 
 		$pk = new RemoveObjectivePacket();
@@ -104,6 +110,9 @@ class ScoreFactory{
 	 * @param int    $type
 	 */
 	public static function setScoreLine(Player $player, int $line, string $message, int $type = ScorePacketEntry::TYPE_FAKE_PLAYER): void{
+        if (!$player->isConnected()){
+            return;
+        }
 		if(!isset(self::$scoreboards[mb_strtolower($player->getName())])){
 			throw new BadFunctionCallException("Cannot set a score to a player without a scoreboard");
 		}
