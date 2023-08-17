@@ -11,10 +11,16 @@
     ],
     "require": {
         "php": "^8.0",
-        "pocketmine/pocketmine-mp": "4.*"
+        "pocketmine/pocketmine-mp": "^4.0.0 || ^5.0.0"
     },
     "require-dev": {
         "phpstan/phpstan": "^0.12.99"
+    },
+    "extra": {
+        "virion":{
+            "spec": "3.0",
+            "namespace-root": "jackmd\\scorefactory"
+        }
     },
     "license": "GPL-3.0-only",
     "minimum-stability": "dev",
